@@ -8,7 +8,7 @@
 # =========================================================
 
 resource "aws_s3_bucket" "terraform_backend" {
-  bucket = "cloudbox-terraform-state-XXXXXXXX"
+  bucket = "cloudbox-terraform-state-20245160"
 }
 
 resource "aws_s3_bucket_versioning" "terraform_backend_versioning" {
