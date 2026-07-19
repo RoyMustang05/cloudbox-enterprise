@@ -28,6 +28,9 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.8.5
+          # Deshabilita el wrapper para que "terraform output" devuelva
+          # texto plano en vez del formato de acciones de GitHub.
+          terraform_wrapper: false
 
       - name: Configurar Credenciales AWS
         uses: aws-actions/configure-aws-credentials@v4
@@ -36,17 +39,31 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # frontend/dist no se sube a Git (está en .gitignore), así que hay
-      # que generarlo aquí antes de que Terraform lo necesite (filemd5
-      # se evalúa incluso en "terraform validate").
+      # Necesitamos terraform init antes de compilar el frontend para poder
+      # leer el estado remoto (S3 backend) y obtener los outputs reales.
+      - name: Terraform Init
+        run: terraform init
+
+      # Genera frontend/.env.production con los valores reales del estado
+      # de Terraform ANTES de que Vite compile. Así el hash del bundle
+      # coincide exactamente con el que generará null_resource.react_build
+      # durante el apply, y el for_each de aws_s3_object.assets no cambia
+      # de nombre a mitad de la ejecución.
+      - name: Generar .env.production desde Terraform outputs
+        run: |
+          echo "VITE_API_URL=$(terraform output -raw api_url)"           > ../frontend/.env.production
+          echo "VITE_USER_POOL_ID=$(terraform output -raw user_pool_id)" >> ../frontend/.env.production
+          echo "VITE_CLIENT_ID=$(terraform output -raw app_client_id)"   >> ../frontend/.env.production
+          echo "VITE_REGION=$(terraform output -raw region)"             >> ../frontend/.env.production
+          echo "VITE_API_KEY=$(terraform output -raw api_key_value)"     >> ../frontend/.env.production
+
+      # Ahora compilamos con las variables correctas. El hash del bundle
+      # será idéntico al que producirá Terraform durante el apply.
       - name: Compilar frontend
         working-directory: frontend
         run: |
           npm install
           npm run build
-
-      - name: Terraform Init
-        run: terraform init
 
       - name: Terraform Format
         run: terraform fmt -check
