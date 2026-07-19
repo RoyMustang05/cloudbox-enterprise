@@ -36,6 +36,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      # frontend/dist no se sube a Git (está en .gitignore), así que hay
+      # que generarlo aquí antes de que Terraform lo necesite (filemd5
+      # se evalúa incluso en "terraform validate").
+      - name: Compilar frontend
+        working-directory: frontend
+        run: |
+          npm install
+          npm run build
+
       - name: Terraform Init
         run: terraform init
 
