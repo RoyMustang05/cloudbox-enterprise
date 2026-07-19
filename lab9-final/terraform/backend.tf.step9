@@ -1,0 +1,29 @@
+# =========================================================
+# LABORATORIO 10 - PARTE 2.4 - Paso 9
+#
+# NO renombrar este archivo a "backend.tf" todavía.
+#
+# Orden correcto:
+#   1) Con este archivo AÚN llamado backend.tf.step9, ejecutar
+#      terraform apply para crear el bucket S3 y la tabla
+#      DynamoDB definidos en backend-resources.tf (estado local).
+#   2) Verificar en la consola de AWS que el bucket
+#      cloudbox-terraform-state-XXXXXXXX y la tabla
+#      terraform-lock existen.
+#   3) Reemplazar XXXXXXXX abajo por el mismo identificador que
+#      usó en backend-resources.tf.
+#   4) Renombrar este archivo a backend.tf.
+#   5) Ejecutar: terraform init
+#      Responder "yes" cuando pregunte:
+#      "Do you want to copy existing state to the new backend?"
+# =========================================================
+
+terraform {
+  backend "s3" {
+    bucket         = "cloudbox-terraform-state-XXXXXXXX"
+    key            = "cloudbox-enterprise/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-lock"
+    encrypt        = true
+  }
+}

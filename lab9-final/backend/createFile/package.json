@@ -1,0 +1,9 @@
+{
+  "name": "createfile",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.600.0",
+    "uuid": "^9.0.1"
+  }
+}
