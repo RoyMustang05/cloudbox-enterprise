@@ -1,7 +1,4 @@
-# =========================================================
-# CloudBox Enterprise - Proyecto Terraform unificado
-# Base: Laboratorio 7 (backend serverless) + Laboratorio 8 (frontend)
-# =========================================================
+# Laboratorio 10 CI/CD
 
 module "dynamodb" {
   source = "./modules/dynamodb"
